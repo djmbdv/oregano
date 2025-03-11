@@ -571,7 +571,11 @@ static gboolean g_plot_motion_cb (GtkWidget *w, GdkEventMotion *e, GPlot *p)
 			GdkCursor *cursor = gdk_cursor_new (GDK_FLEUR);
 #endif
 			gdk_window_set_cursor (gtk_widget_get_window (w), cursor);
+#if GTK_CHECK_VERSION (3,16,0)
+			gdk_display_flush (display);
+#else
 			gdk_flush ();
+#endif
 
 			dx = p->priv->press_x - e->x;
 			dy = p->priv->press_y - e->y;
@@ -598,7 +602,11 @@ static gboolean g_plot_motion_cb (GtkWidget *w, GdkEventMotion *e, GPlot *p)
 			GdkCursor *cursor = gdk_cursor_new (GDK_CROSS);
 #endif
 			gdk_window_set_cursor (gtk_widget_get_window (w), cursor);
+#if GTK_CHECK_VERSION (3,16,0)
+			gdk_display_flush (display);
+#else
 			gdk_flush ();
+#endif
 
 			p->priv->rubberband.xmin = MIN(e->x, p->priv->press_x);
 			p->priv->rubberband.xmax = MAX(e->x, p->priv->press_x);
@@ -648,6 +656,10 @@ static gboolean g_plot_button_press_cb (GtkWidget *w, GdkEventButton *e, GPlot *
 static gboolean g_plot_button_release_cb (GtkWidget *w, GdkEventButton *e, GPlot *p)
 {
 	gdouble zoom = 0.0;
+#if GTK_CHECK_VERSION (3,16,0)
+	GdkDisplay *display;
+	display = gtk_widget_get_display (w);
+#endif
 
 	g_return_val_if_fail (IS_GPLOT (p), TRUE);
 
@@ -670,13 +682,21 @@ static gboolean g_plot_button_release_cb (GtkWidget *w, GdkEventButton *e, GPlot
 			gtk_widget_queue_draw (w);
 		} else {
 			gdk_window_set_cursor (gtk_widget_get_window (w), NULL);
+#if GTK_CHECK_VERSION (3,16,0)
+			gdk_display_flush (display);
+#else
 			gdk_flush ();
+#endif
 		}
 		break;
 	case GPLOT_ZOOM_REGION:
 		if ((e->button == 1) && (p->priv->action == ACTION_REGION)) {
 			gdk_window_set_cursor (gtk_widget_get_window (w), NULL);
+#if GTK_CHECK_VERSION (3,16,0)
+			gdk_display_flush (display);
+#else
 			gdk_flush ();
+#endif
 
 			if (e->x < p->priv->press_x || e->y < p->priv->press_y) {
 				g_plot_reset_zoom(p);
@@ -700,7 +720,11 @@ static gboolean g_plot_button_release_cb (GtkWidget *w, GdkEventButton *e, GPlot
 			}
 		} else if (e->button == 3) {
 			gdk_window_set_cursor (gtk_widget_get_window (w), NULL);
+#if GTK_CHECK_VERSION (3,16,0)
+			gdk_display_flush (display);
+#else
 			gdk_flush ();
+#endif
 		}
 		gtk_widget_queue_draw (w);
 	}
